@@ -1,0 +1,15 @@
+# =============================================================================
+# Password Strength & Security Analyzer - Dependencies
+# =============================================================================
+# This project intentionally uses ONLY the Python Standard Library to ensure
+# 100% offline security, zero supply-chain risk, and maximum portability:
+#
+#   - tkinter / tkinter.ttk   (GUI components and styling)
+#   - secrets                 (Cryptographically secure pseudo-random number generator)
+#   - string                  (ASCII character constants)
+#   - pathlib / os            (Local file and path operations)
+#   - typing                  (Static type hint definitions)
+#
+# No external third-party pip packages are required.
+# Python 3.10+ is recommended.
+# =============================================================================
