@@ -15,6 +15,8 @@ The **Password Strength & Security Analyzer** is an educational cybersecurity de
 
 The application operates **100% locally and offline** in memory, with zero telemetry, zero logging, and zero persistent disk storage.
 
+> 🌐 **Web Edition Available:** A complete, zero-knowledge, 100% client-side Web Edition is available in [`web/`](web/) for instant deployment to Vercel, Netlify, or GitHub Pages with no Python or server runtime required. See [`web/README.md`](web/README.md) for details.
+
 ---
 
 ## Features

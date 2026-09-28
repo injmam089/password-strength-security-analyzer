@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="Production-grade, privacy-first Password Strength & Security Analyzer with cryptographic generation. 100% client-side, zero network transmissions.">
+  <meta name="theme-color" content="#4F46E5">
+  <title>Password Strength &amp; Security Analyzer — Web Edition</title>
+  <link rel="icon" type="image/svg+xml" href="assets/shield.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header / Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon-wrapper" aria-hidden="true">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">Password Strength &amp; Security Analyzer</h1>
+          <p class="brand-subtitle">Real-time cryptographic evaluation &amp; zero-knowledge generation</p>
+        </div>
+      </div>
+      <div class="privacy-badge" role="status" aria-label="Privacy guarantee: Local, private, in-browser analysis">
+        <svg class="privacy-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+        <span class="privacy-pulse" aria-hidden="true"></span>
+        <span class="privacy-text">LOCAL &bull; PRIVATE &bull; IN-BROWSER</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Grid -->
+  <main class="main-content">
+    <div class="dashboard-grid">
+
+      <!-- LEFT CARD: Password Analyzer -->
+      <section class="card analyzer-card" aria-labelledby="analyzer-heading">
+        <div class="card-header">
+          <div class="card-header-icon analyzer-accent" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <circle cx="11.5" cy="11.5" r="2.5"/>
+              <path d="M13.3 13.3L15.5 15.5"/>
+            </svg>
+          </div>
+          <div>
+            <h2 id="analyzer-heading" class="card-title">Password Analyzer</h2>
+            <p class="card-subtitle">Live security inspection as you type</p>
+          </div>
+        </div>
+
+        <!-- Password Input Field -->
+        <div class="form-group">
+          <div class="label-row">
+            <label for="analyzer-input" class="field-label">PASSWORD TO ANALYZE</label>
+            <span id="char-counter" class="field-hint" aria-live="polite">0 chars</span>
+          </div>
+          <div class="input-wrapper">
+            <input 
+              type="password" 
+              id="analyzer-input" 
+              class="text-input" 
+              placeholder="Type or paste a password to inspect..." 
+              autocomplete="off" 
+              spellcheck="false" 
+              autocapitalize="off"
+              aria-describedby="analyzer-status-hint"
+            />
+            <div class="input-actions">
+              <button 
+                type="button" 
+                id="toggle-analyzer-visibility" 
+                class="icon-btn" 
+                title="Toggle password visibility" 
+                aria-label="Show password"
+                aria-pressed="false"
+              >
+                <!-- Eye icon (default) -->
+                <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <!-- Eye off icon (hidden by default) -->
+                <svg class="icon-eye-off hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+              <button 
+                type="button" 
+                id="clear-analyzer-btn" 
+                class="icon-btn" 
+                title="Clear input" 
+                aria-label="Clear password"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <p id="analyzer-status-hint" class="input-caption">
+            Real-time evaluation active. All analysis is performed entirely in your browser sandbox.
+          </p>
+        </div>
+
+        <!-- Strength Score Visualization -->
+        <div class="score-display-box score-state-empty" id="score-display-box" role="region" aria-label="Password Strength Score">
+          <div class="gauge-container">
+            <div class="gauge-halo" id="gauge-halo" aria-hidden="true"></div>
+            <svg class="gauge-svg" viewBox="0 0 140 140" aria-hidden="true">
+              <!-- Background track -->
+              <circle class="gauge-track" cx="70" cy="70" r="56" stroke-width="10" />
+              <!-- Animated progress bar -->
+              <circle 
+                id="gauge-progress" 
+                class="gauge-progress state-empty" 
+                cx="70" 
+                cy="70" 
+                r="56" 
+                stroke-width="10"
+                stroke-dasharray="351.86"
+                stroke-dashoffset="351.86"
+              />
+            </svg>
+            <div class="gauge-center">
+              <span id="score-number" class="score-value state-empty">0</span>
+              <span class="score-max">/ 100</span>
+            </div>
+          </div>
+
+          <div class="score-meta">
+            <div id="score-badge" class="badge badge-neutral" aria-live="polite">
+              <span id="score-badge-icon" class="badge-icon" aria-hidden="true">
+                <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"></circle>
+                </svg>
+              </span>
+              <span id="score-badge-text">NOT ANALYZED</span>
+            </div>
+            <h3 id="score-headline" class="score-headline">Awaiting Input</h3>
+            <p id="score-summary" class="score-summary">Enter a password to inspect security</p>
+          </div>
+        </div>
+
+        <!-- 4 Security Attribute Chips -->
+        <div class="attribute-chips-grid" aria-label="Security Metrics Summary">
+          <div class="attribute-chip">
+            <span class="chip-label">Length</span>
+            <span id="chip-length" class="chip-value">0 chars</span>
+          </div>
+          <div class="attribute-chip">
+            <span class="chip-label">Diversity</span>
+            <span id="chip-diversity" class="chip-value">0 / 4 Types</span>
+          </div>
+          <div class="attribute-chip">
+            <span class="chip-label">Compromised List</span>
+            <span id="chip-common" class="chip-value chip-neutral">NOT CHECKED</span>
+          </div>
+          <div class="attribute-chip">
+            <span class="chip-label">Entropy Category</span>
+            <span id="chip-entropy" class="chip-value">Minimal</span>
+          </div>
+        </div>
+
+        <!-- Security Checks Section -->
+        <div class="checks-section" aria-labelledby="checks-heading">
+          <div class="checks-header">
+            <div class="checks-header-text">
+              <div class="checks-title-wrap">
+                <svg class="heading-mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <polyline points="9 12 11 14 15 10"></polyline>
+                </svg>
+                <h3 id="checks-heading" class="section-title">SECURITY CHECKS</h3>
+              </div>
+              <p class="section-sublabel">Basic password hygiene</p>
+            </div>
+            <span id="checks-counter-badge" class="checks-badge">0 / 6 PASSED</span>
+          </div>
+          <div class="checks-progress-track" aria-hidden="true">
+            <div id="checks-progress-bar" class="checks-progress-fill" style="width: 0%; background-color: #CBD5E1;"></div>
+          </div>
+
+          <ul class="checks-list" id="checks-list">
+            <!-- Check 1: Length -->
+            <li class="check-card check-item" data-check="length" data-status="neutral">
+              <div class="check-left-group">
+                <div class="check-badge-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-svg-icon">
+                    <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0l12.6 12.6z"/>
+                    <line x1="14.5" y1="4.5" x2="16.5" y2="6.5"/>
+                    <line x1="11.5" y1="7.5" x2="14.5" y2="10.5"/>
+                    <line x1="8.5" y1="10.5" x2="10.5" y2="12.5"/>
+                    <line x1="5.5" y1="13.5" x2="8.5" y2="16.5"/>
+                  </svg>
+                </div>
+                <div class="check-text-content">
+                  <span class="check-card-title">Minimum 8 characters</span>
+                  <span class="check-card-desc">Recommended: 12+ characters for resilience</span>
+                </div>
+              </div>
+              <span class="check-status-pill pill-neutral" id="check-status-length">
+                <svg class="pill-icon-neutral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                <svg class="pill-icon-pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <svg class="pill-icon-fail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <svg class="pill-icon-breach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span class="pill-label">NOT CHECKED</span>
+              </span>
+            </li>
+
+            <!-- Check 2: Uppercase -->
+            <li class="check-card check-item" data-check="upper" data-status="neutral">
+              <div class="check-left-group">
+                <div class="check-badge-icon badge-symbol" aria-hidden="true">Aa</div>
+                <div class="check-text-content">
+                  <span class="check-card-title">Uppercase letters</span>
+                  <span class="check-card-desc">Includes characters from A to Z</span>
+                </div>
+              </div>
+              <span class="check-status-pill pill-neutral" id="check-status-upper">
+                <svg class="pill-icon-neutral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                <svg class="pill-icon-pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <svg class="pill-icon-fail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <svg class="pill-icon-breach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span class="pill-label">NOT CHECKED</span>
+              </span>
+            </li>
+
+            <!-- Check 3: Lowercase -->
+            <li class="check-card check-item" data-check="lower" data-status="neutral">
+              <div class="check-left-group">
+                <div class="check-badge-icon badge-symbol" aria-hidden="true">aa</div>
+                <div class="check-text-content">
+                  <span class="check-card-title">Lowercase letters</span>
+                  <span class="check-card-desc">Includes characters from a to z</span>
+                </div>
+              </div>
+              <span class="check-status-pill pill-neutral" id="check-status-lower">
+                <svg class="pill-icon-neutral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                <svg class="pill-icon-pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <svg class="pill-icon-fail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <svg class="pill-icon-breach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span class="pill-label">NOT CHECKED</span>
+              </span>
+            </li>
+
+            <!-- Check 4: Numbers -->
+            <li class="check-card check-item" data-check="number" data-status="neutral">
+              <div class="check-left-group">
+                <div class="check-badge-icon badge-symbol" aria-hidden="true">123</div>
+                <div class="check-text-content">
+                  <span class="check-card-title">Numeric numbers</span>
+                  <span class="check-card-desc">Includes digits from 0 to 9</span>
+                </div>
+              </div>
+              <span class="check-status-pill pill-neutral" id="check-status-number">
+                <svg class="pill-icon-neutral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                <svg class="pill-icon-pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <svg class="pill-icon-fail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <svg class="pill-icon-breach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span class="pill-label">NOT CHECKED</span>
+              </span>
+            </li>
+
+            <!-- Check 5: Special Symbols -->
+            <li class="check-card check-item" data-check="special" data-status="neutral">
+              <div class="check-left-group">
+                <div class="check-badge-icon badge-symbol" aria-hidden="true">!@#</div>
+                <div class="check-text-content">
+                  <span class="check-card-title">Special symbols</span>
+                  <span class="check-card-desc">Punctuation &amp; symbols</span>
+                </div>
+              </div>
+              <span class="check-status-pill pill-neutral" id="check-status-special">
+                <svg class="pill-icon-neutral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                <svg class="pill-icon-pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <svg class="pill-icon-fail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <svg class="pill-icon-breach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span class="pill-label">NOT CHECKED</span>
+              </span>
+            </li>
+
+            <!-- Check 6: Common-password check -->
+            <li class="check-card check-item" data-check="common" data-status="neutral">
+              <div class="check-left-group">
+                <div class="check-badge-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-svg-icon">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <circle cx="11.5" cy="11.5" r="2.5"></circle>
+                    <path d="M13.3 13.3L15.5 15.5"></path>
+                  </svg>
+                </div>
+                <div class="check-text-content">
+                  <span class="check-card-title">Common-password check</span>
+                  <span class="check-card-desc" id="check-desc-common">Not present in the local common-password list</span>
+                </div>
+              </div>
+              <span class="check-status-pill pill-neutral" id="check-status-common">
+                <svg class="pill-icon-neutral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"></circle>
+                </svg>
+                <svg class="pill-icon-pass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <svg class="pill-icon-fail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <svg class="pill-icon-breach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span class="pill-label">NOT CHECKED</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Security Insights Panel -->
+        <div class="insights-panel state-empty" id="suggestions-box" role="region" aria-labelledby="insights-title">
+          <div class="insights-panel-header">
+            <div class="insights-header-left">
+              <span class="insights-header-icon" id="insights-header-icon" aria-hidden="true">
+                <svg class="insights-heading-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </span>
+              <h3 id="insights-title" class="insights-title">SECURITY INSIGHTS</h3>
+            </div>
+          </div>
+          <div class="insights-list" id="suggestions-list">
+            <p class="insights-placeholder">Type a password above to receive real-time security guidance.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT CARD: Password Generator -->
+      <section class="card generator-card" aria-labelledby="generator-heading">
+        <div class="card-header">
+          <div class="card-header-icon generator-accent" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="14" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              <circle cx="10" cy="16.5" r="1.5"></circle>
+              <path d="M20 2v3m-1.5-1.5h3"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 id="generator-heading" class="card-title">Password Generator</h2>
+            <p class="card-subtitle">Cryptographically secure, entropy-rich credentials</p>
+          </div>
+        </div>
+
+        <!-- Length Controls -->
+        <div class="form-group">
+          <div class="label-row">
+            <div class="field-label-group">
+              <svg class="field-label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <circle cx="8" cy="6" r="2.5"></circle>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+                <circle cx="16" cy="18" r="2.5"></circle>
+              </svg>
+              <label for="length-slider" class="field-label">PASSWORD LENGTH</label>
+            </div>
+            <span id="slider-length-val" class="length-badge" aria-live="polite">16 characters</span>
+          </div>
+          <div class="slider-wrapper">
+            <input 
+              type="range" 
+              id="length-slider" 
+              class="range-slider" 
+              min="8" 
+              max="64" 
+              value="16" 
+              aria-valuemin="8" 
+              aria-valuemax="64" 
+              aria-valuenow="16" 
+              aria-label="Password Length Slider"
+            />
+          </div>
+          <!-- Quick Presets -->
+          <div class="presets-row" role="group" aria-label="Preset password lengths">
+            <span class="presets-label">Presets:</span>
+            <button type="button" class="preset-pill" data-len="8">8</button>
+            <button type="button" class="preset-pill" data-len="12">12</button>
+            <button type="button" class="preset-pill active" data-len="16">16</button>
+            <button type="button" class="preset-pill" data-len="20">20</button>
+            <button type="button" class="preset-pill" data-len="24">24</button>
+            <button type="button" class="preset-pill" data-len="32">32</button>
+          </div>
+        </div>
+
+        <!-- Character Types (2x2 Grid) -->
+        <div class="form-group">
+          <div class="label-row">
+            <span class="field-label">CHARACTER TYPES</span>
+            <span id="category-error" class="category-warning hidden" role="alert">Select at least one category</span>
+          </div>
+          <div class="toggles-grid">
+            <!-- Uppercase -->
+            <label class="toggle-card" for="gen-opt-upper">
+              <div class="toggle-card-info">
+                <span class="toggle-card-tag">Aa</span>
+                <div class="toggle-card-texts">
+                  <span class="toggle-card-title">Uppercase</span>
+                  <span class="toggle-card-desc">A &ndash; Z</span>
+                </div>
+              </div>
+              <input type="checkbox" id="gen-opt-upper" class="sr-only toggle-input" checked />
+              <span class="custom-switch" aria-hidden="true"></span>
+            </label>
+
+            <!-- Lowercase -->
+            <label class="toggle-card" for="gen-opt-lower">
+              <div class="toggle-card-info">
+                <span class="toggle-card-tag">aa</span>
+                <div class="toggle-card-texts">
+                  <span class="toggle-card-title">Lowercase</span>
+                  <span class="toggle-card-desc">a &ndash; z</span>
+                </div>
+              </div>
+              <input type="checkbox" id="gen-opt-lower" class="sr-only toggle-input" checked />
+              <span class="custom-switch" aria-hidden="true"></span>
+            </label>
+
+            <!-- Numbers -->
+            <label class="toggle-card" for="gen-opt-numbers">
+              <div class="toggle-card-info">
+                <span class="toggle-card-tag">123</span>
+                <div class="toggle-card-texts">
+                  <span class="toggle-card-title">Numbers</span>
+                  <span class="toggle-card-desc">0 &ndash; 9</span>
+                </div>
+              </div>
+              <input type="checkbox" id="gen-opt-numbers" class="sr-only toggle-input" checked />
+              <span class="custom-switch" aria-hidden="true"></span>
+            </label>
+
+            <!-- Symbols -->
+            <label class="toggle-card" for="gen-opt-special">
+              <div class="toggle-card-info">
+                <span class="toggle-card-tag">!@#</span>
+                <div class="toggle-card-texts">
+                  <span class="toggle-card-title">Symbols</span>
+                  <span class="toggle-card-desc">!@#$%^&amp;*...</span>
+                </div>
+              </div>
+              <input type="checkbox" id="gen-opt-special" class="sr-only toggle-input" checked />
+              <span class="custom-switch" aria-hidden="true"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Primary CTA: Generate -->
+        <button type="button" id="generate-btn" class="btn-primary" aria-label="Generate secure password">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="13" height="11" rx="2"></rect>
+            <path d="M6 11V6.5a3.5 3.5 0 0 1 7 0V11"></path>
+            <path d="M19.5 2v3m-1.5-1.5h3"></path>
+            <path d="M21 11v3m-1.5-1.5h3"></path>
+          </svg>
+          <span>Generate Secure Password</span>
+        </button>
+
+        <!-- Generated Output Box -->
+        <div class="form-group generated-group">
+          <div class="label-row">
+            <label for="generated-password-display" class="field-label">GENERATED CREDENTIAL</label>
+            <span id="entropy-estimate" class="field-hint">Estimated entropy: &mdash;</span>
+          </div>
+
+          <div class="generated-box-container">
+            <input 
+              type="text" 
+              id="generated-password-display" 
+              class="generated-input" 
+              readonly 
+              value="" 
+              placeholder="Click 'Generate Secure Password' above"
+              aria-label="Generated password output"
+              spellcheck="false"
+            />
+            <button 
+              type="button" 
+              id="toggle-gen-visibility" 
+              class="icon-btn-inline" 
+              title="Toggle visibility" 
+              aria-label="Mask generated password"
+            >
+              <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg class="icon-eye-off hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Generated Actions Row -->
+          <div class="gen-actions-row">
+            <button type="button" id="copy-btn" class="btn-secondary" title="Copy to clipboard" aria-label="Copy generated password">
+              <svg class="btn-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span id="copy-btn-text">Copy</span>
+            </button>
+
+            <button type="button" id="analyze-generated-btn" class="btn-secondary btn-analyze-accent" title="Send to Password Analyzer" aria-label="Analyze generated password">
+              <svg class="btn-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <circle cx="11.5" cy="11.5" r="2.5"></circle>
+                <path d="M13.3 13.3L15.5 15.5"></path>
+              </svg>
+              <span>Analyze Generated</span>
+            </button>
+
+            <button type="button" id="clear-generated-btn" class="btn-secondary" title="Clear generated password" aria-label="Clear generated password">
+              <svg class="btn-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              <span>Clear</span>
+            </button>
+          </div>
+
+          <!-- Copy Notification / Status -->
+          <div id="copy-status" class="copy-status-msg hidden" role="status" aria-live="polite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Password copied securely to clipboard!</span>
+          </div>
+        </div>
+
+        <!-- Security Insights Box -->
+        <div class="insights-box">
+          <div class="insights-header">
+            <svg class="insights-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <polyline points="9 12 11 14 15 10"/>
+            </svg>
+            <h3 class="insights-title">CRYPTOGRAPHIC INTEGRITY</h3>
+          </div>
+          <p class="insights-body">
+            Generated using the browser <code>crypto.getRandomValues()</code> CSPRNG engine with unbiased rejection sampling. Guaranteed representation across all active character sets. Never cached or sent to any server.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Privacy-First Architecture Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-shield" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+      </div>
+      <h3 class="footer-heading">PRIVACY-FIRST ARCHITECTURE</h3>
+      <p class="footer-description footer-text">
+        Password analysis and generation run locally in your browser. Passwords are not sent to a remote analysis server.
+      </p>
+      <div class="footer-divider" aria-hidden="true"></div>
+      <div class="footer-meta">
+        <span class="footer-app-name">Password Strength &amp; Security Analyzer</span>
+        <span class="footer-meta-details">Web Edition v1.0.0 &bull; Offline Compatible</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core Scripts (No framework dependencies) -->
+  <script src="js/passwordChecker.js"></script>
+  <script src="js/passwordGenerator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
